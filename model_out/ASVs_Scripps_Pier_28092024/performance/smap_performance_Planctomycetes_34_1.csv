@@ -1,0 +1,2 @@
+"theta","alpha","lambda","target","cv_min_dat_perc","rmse_cv","rho_cv","const_pred_rmse","const_pred_rho","inv_rmse_cv","performance_cv","rmse_fit","rho_fit","inv_rmse_fit","performance_fit"
+3,0.3,1,"Planctomycetes_34_1",10.054844606947,0.0955480267215865,0.440990046276294,0.113830458014621,0.377581768132698,0.540074058568117,0.697246161447308,0.125407311698994,0.494432396383019,0.125407311698994,0.510088608401152

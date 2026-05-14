@@ -1,0 +1,2 @@
+"theta","alpha","lambda","target","cv_min_dat_perc","rmse_cv","rho_cv","const_pred_rmse","const_pred_rho","inv_rmse_cv","performance_cv","rmse_fit","rho_fit","inv_rmse_fit","performance_fit"
+3,0.1,0.178,"Proteobacteria_7982_2",10.054844606947,0.300714906530459,0.75427585286987,0.311896905232338,0.725430108497908,1.09975486691284,1.33356395779169,0.275361112236922,0.742258763683431,0.275361112236922,0.791689215789384

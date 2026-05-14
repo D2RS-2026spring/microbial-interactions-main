@@ -1,0 +1,2 @@
+"theta","alpha","lambda","target","cv_min_dat_perc","rmse_cv","rho_cv","const_pred_rmse","const_pred_rho","inv_rmse_cv","performance_cv","rmse_fit","rho_fit","inv_rmse_fit","performance_fit"
+1,0.3,1,"Dinoflagellata_1728_1",10.054844606947,0.194328554935428,0.4688978207687,0.228803608649224,0.459473225592246,0.397974609400769,0.61501947615448,0.188208908566897,0.458277518568203,0.188208908566897,0.495419899972712

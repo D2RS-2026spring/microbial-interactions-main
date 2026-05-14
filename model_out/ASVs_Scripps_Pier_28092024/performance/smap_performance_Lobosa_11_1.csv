@@ -1,0 +1,2 @@
+"theta","alpha","lambda","target","cv_min_dat_perc","rmse_cv","rho_cv","const_pred_rmse","const_pred_rho","inv_rmse_cv","performance_cv","rmse_fit","rho_fit","inv_rmse_fit","performance_fit"
+0.1,0.1,1,"Lobosa_11_1",10.054844606947,0.486230882549175,0.163713513252435,0.622101738946688,0.160261535433865,1.62638194385734,1.6346009732429,0.460845530146013,0.1462560857431,0.460845530146013,0.483497099549163

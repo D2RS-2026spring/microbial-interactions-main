@@ -1,0 +1,2 @@
+"theta","alpha","lambda","target","cv_min_dat_perc","rmse_cv","rho_cv","const_pred_rmse","const_pred_rho","inv_rmse_cv","performance_cv","rmse_fit","rho_fit","inv_rmse_fit","performance_fit"
+0,0.3,1,"Cryptophyta_15_2",10.054844606947,0.108504359827477,0.415838232555714,0.120031449782539,0.392122295974523,0.290891287168436,0.507483178642967,0.113613646574377,0.362139684652053,0.113613646574377,0.37954342556263

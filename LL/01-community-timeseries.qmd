@@ -1,0 +1,406 @@
+---
+title: "核心结果：微生物群落的时间序列变化"
+author: "合成菌群复现小组"
+format: html
+editor: source
+---
+
+## 1. 研究背景与数据准备
+
+为了探究微生物群落结构随时间的演替规律，我们首先复现了原论文图 1A 的群落时间序列分析。
+
+首先，加载数据处理和可视化所需的核心工具包 `tidyverse`（这也能解决我们环境中未识别基础函数的警告）。接着，我们读取 ASV（扩增子变异序列）的分类学元数据。
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
+# 加载核心包
+library(tidyverse)
+
+# 读取元数据：提供序列 ID 与较高分类学级别的映射关系
+taxa_info <- read.csv("../data/taxa_information.csv")
+```
+
+## 2. 数据清洗与分类学聚合
+
+原始测序数据通常是宽表格式且非常庞杂。为了能够进行宏观的群落结构分析，我们需要将其转换为时间序列长表，并将底层的 ASV 丰度聚合到更高的分类学层级（如硅藻、甲藻等）。
+
+```{r}
+#| label: data-preprocessing
+#| message: false
+
+# 读取时间序列丰度数据并进行预处理
+data <- read.csv("../data/data_sequences_0.1_rel_ab_0.5_occ_binned_4_days_with_temperature.csv") %>%
+  # 宽表转长表，适应时间序列绘图
+  gather(-date, key = "variable", value = "value") %>%
+  # 匹配分类学标签
+  left_join(taxa_info, by = c("variable" = "sequence_ID")) %>%
+  # 质控：剔除无法进行分类学鉴定的序列
+  filter(!is.na(domain)) %>% 
+  # 将单个 ASV 的相对丰度聚合到各自的高级分类群中
+  group_by(date, group, domain) %>%
+  summarise(rel_ab = sum(value, na.rm = TRUE), .groups = "drop")
+```
+## 3. 图表属性配置与总丰度计算
+
+为了让图表具有良好的可读性，我们提取了原作者预设的颜色配置，并强制按照丰度和域（domain）进行排序。同时，我们计算了群落的“总丰度”，并将其标准化到 0-1 之间，以便在图中作为次坐标轴（折线）展示。
+
+```{r}
+#| label: attributes-and-scaling
+
+plotting_attributes <- taxa_info %>%
+  select(group, domain, rel_ab_mean, color) %>%
+  filter(!is.na(domain)) %>% 
+  group_by(group, domain, color) %>%
+  summarise(rel_ab = sum(rel_ab_mean, na.rm = TRUE), .groups = "drop") %>%
+  arrange(domain, rel_ab)
+
+plot_data <- data %>%
+  mutate(group = factor(group, levels = pull(plotting_attributes, "group")))
+
+scale_values <- function(x){(x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))} 
+
+total_abundance_scaled <- ungroup(data) %>%
+  group_by(date) %>%
+  summarise(rel_ab = sum(rel_ab), .groups = "drop") %>% 
+  mutate(rel_ab = ifelse(rel_ab == 0, NA, rel_ab)) %>% 
+  mutate(rel_ab_scaled = scale_values(rel_ab))
+```
+## 4. 核心结果可视化与解读...
+```{r}
+#| label: fig-community-composition
+#| fig-cap: "图1：微生物群落组成与总丰度的时间序列变化"
+#| fig-width: 12
+#| fig-height: 4
+#| warning: false
+
+ggplot(plot_data, aes(y = rel_ab, x = date(date))) +
+  geom_bar(stat = "identity", aes(color = group, fill = group), position = "fill") +
+  scale_color_manual(values = pull(plotting_attributes, "color"), name = "") +
+  scale_fill_manual(values = pull(plotting_attributes, "color"), name = "") +
+  theme_classic() +
+  ylab("Community composition (scaled)") +
+  xlab("Time") +
+  theme(legend.position = "top", 
+        text = element_text(size = 12), 
+        legend.text = element_text(size = 8), 
+        legend.key.size = unit(0.3, "cm")) + 
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y", expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0), 
+                     sec.axis = sec_axis(~. * 1, name = "Total abundance (scaled)", breaks = seq(0, 1, 0.2)), 
+                     breaks = seq(0, 1, 0.2)) +
+  geom_line(data = total_abundance_scaled, aes(y = rel_ab_scaled), color = "white", linewidth = 0.6) +
+  guides(colour = guide_legend(nrow = 2), fill = guide_legend(nrow = 2))
+
+ggsave("../plots/Fig_1A_microbial_community_time_series.pdf", width = 12, height = 3.5)
+```
+
+## 5. 环境驱动力分析：温度的时间序列
+在跳过极其消耗算力的微生物内部互作计算后，我们直接探索外部环境因子（如温度）对群落演替的潜在影响。原论文的图 4 探讨了这种温度依赖性。由于我们本地的数据集已经包含了水温记录，我们可以直接提取并将其可视化。
+```{r}
+#| label: fig-temperature-dynamics
+#| fig-cap: "图2：采样期间水温的时间序列与季节性波动"
+#| fig-width: 10
+#| fig-height: 3
+#| warning: false
+#| message: false
+
+# 重新读取原始宽表数据并专门提取温度列
+raw_data <- read.csv("../data/data_sequences_0.1_rel_ab_0.5_occ_binned_4_days_with_temperature.csv")
+
+# 整理环境数据（剔除多余的物种丰度列，保留时间和温度）
+env_data <- raw_data %>%
+  select(date, temperature) %>%
+  # 确保日期列被 R 语言正确识别为时间格式
+  mutate(date = as.Date(date))
+
+# 绘制温度变化折线图
+ggplot(env_data, aes(x = date, y = temperature)) +
+  # 绘制温度主线（橙红色）
+  geom_line(color = "#d95f02", linewidth = 0.8) +
+  # 添加一条平滑的长期趋势线（黑色虚线）
+  geom_smooth(method = "loess", color = "black", linetype = "dashed", se = FALSE) +
+  theme_classic() +
+  labs(y = "Temperature (°C)", x = "Time") +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y", expand = c(0, 0)) +
+  theme(text = element_text(size = 12))
+
+# 保存图片到 plots 文件夹
+ggsave("../plots/Fig_4A_Temperature_series.pdf", width = 10, height = 3)
+```
+
+## 6. 微生物互作强度的温度依赖性（数据准备）
+
+图 4 的核心在于探究水温如何改变微生物之间的网络关系。为此，我们需要加载由 S-map 模型计算出的庞大动态相互作用系数（约 1GB），并将其与我们之前的温度序列数据对齐。
+
+```{r}
+#| label: load-smap-interactions
+#| message: false
+#| warning: false
+
+# 加载图4专属的核心包
+library(data.table) # 处理 1GB 巨型数据的神器（fread）
+library(ggpubr)     # 用于最后拼接多张子图
+library(ggridges)   # 用于绘制温度密度山峰图
+library(ggtext)     # 用于处理图表中的富文本（斜体、加粗）
+
+# 1. 读取环境数据（提取温度）
+data_temp <- read.csv("../data/data_sequences_0.1_rel_ab_0.5_occ_binned_4_days_with_temperature.csv") %>%
+  mutate(time=date(date)) %>%
+  select(time,temperature)
+
+# 2. 读取巨型互作网络数据 (⚠️此处读取 1GB 文件，可能需要 10-30 秒，请耐心等待)
+mdr_smap_coefficients <- fread("../model_out/MDR_smap_interactions_Scripps_Pier_ASVs_tp_2_28092024.csv") %>%
+  mutate(interaction=paste(target_2,"-",target_1))
+
+# 3. 读取最强互作关系，并从巨型网络中过滤出它们
+interactions <- read.csv("../model_out/strongest_interactions_Scripps_Pier_ASVs_tp_2_28092024.csv") %>%
+  mutate(interaction=paste(target_2,"-",target_1))
+interaction_vector <- pull(interactions,interaction)
+
+interactions_time <- filter(mdr_smap_coefficients,interaction%in%interaction_vector) 
+
+# 4. 读取并整理核心微生物（Keystone taxa）的元数据与标签格式
+taxa_info <- read.csv("../data/taxa_information.csv") %>%
+  arrange(domain,group,sequence_ID) %>%
+  select(sequence_ID,group,color)
+
+keystone_taxa <- read.csv("../model_out/keystone_taxa_Scripps_Pier_ASVs_tp_2_28092024.csv")  %>%
+  arrange(domain,group,sequence_ID)
+
+# 生成用于图表展示的简短标签
+group_short_IDs <- select(keystone_taxa,sequence_ID,domain,group) %>%
+  arrange(domain,sequence_ID) %>%
+  mutate(group_short=substr(group, start = 1, stop = 4)) %>%
+  group_by(group_short) %>%
+  mutate(group_ID=seq(1,n(),1)) %>%
+  mutate(group_ID=as.character((group_ID))) %>%
+  mutate(group_short_ID=paste0(group_short," ",group_ID)) %>%
+  mutate(n_group=n()) %>%
+  ungroup() %>%
+  mutate(group_short_ID=ifelse(n_group==1,gsub(" 1","",group_short_ID),group_short_ID)) %>%
+  select(sequence_ID,group_short_ID)
+
+keystone_taxa <- keystone_taxa %>%
+  left_join(group_short_IDs, by="sequence_ID") %>%
+  mutate(label_edited=paste0("*",name_edited,"* (**",group_short_ID,"**)"))
+```
+
+## 7. 核心指标计算：互作强度 (Interactiveness) 与 促进比例 (Facilitation)
+
+读取完原始网络后，我们需要按温度梯度（对水温取整），计算每个核心微生物在不同水温下的平均互作强度以及正向促进作用所占的比例。
+
+```{r}
+#| label: calculate-metrics
+#| message: false
+#| warning: false
+
+# 聚合时间序列矩阵，计算每个时间点的互作指标
+time_var_inter_matrix <- interactions_time %>%
+  filter(!MDR_smap_coefficient==0) %>% 
+  mutate(count=1) %>%
+  mutate(facilitation=ifelse(MDR_smap_coefficient>0,MDR_smap_coefficient,NA), 
+         inhibition=ifelse(MDR_smap_coefficient<0,MDR_smap_coefficient,NA)) %>%
+  group_by(time,target_2,group_2) %>%
+  summarise(total_strength=sum(MDR_smap_coefficient,na.rm=T), 
+            total_strength_abs=sum(abs(MDR_smap_coefficient),na.rm=T),
+            MVD_smap_coefficient=mean(MDR_smap_coefficient,na.rm=T),
+            links=sum(count),
+            facilitation=sum(facilitation,na.rm = T),
+            inhibition=sum(inhibition,na.rm=T), .groups="drop") %>%
+  # 结合温度数据并对温度取整（创建离散的温度区间）
+  mutate(time=date(time)) %>%
+  left_join(data_temp, by="time") %>%
+  mutate(temperature=round(temperature,0)) %>% 
+  # 计算 Interactiveness (综合净互作与绝对互作强度)
+  mutate(interactiveness=sqrt(total_strength^2+total_strength_abs^2)) %>% 
+  # 计算 Percent facilitation (促进作用占总作用的比例)
+  mutate(perc_facilitation=facilitation/(abs(inhibition)+facilitation)*100) %>%
+  select(temperature,target_2,group_2,interactiveness,perc_facilitation) %>%
+  # 按温度区间和目标类群再次聚合
+  group_by(temperature,target_2,group_2) %>%
+  summarise(mean_interactiveness=mean(interactiveness, na.rm=T),
+            sd_interactiveness=sd(interactiveness, na.rm=T),
+            n_obs=length(interactiveness),
+            mean_perc_facilitation=mean(perc_facilitation, na.rm=T),
+            sd_perc_facilitation=sd(perc_facilitation, na.rm=T), .groups="drop")
+
+# 专门针对核心微生物提取绘图数据
+keystone_taxa_var_inter_matrix <- time_var_inter_matrix %>%
+  filter(target_2%in%pull(keystone_taxa,"sequence_ID")) %>%
+  mutate(se_interactiveness=sd_interactiveness/sqrt(n_obs), 
+         se_perc_facilitation=sd_perc_facilitation/sqrt(n_obs)) %>%
+  left_join(select(keystone_taxa,sequence_ID,label_edited),by=c("target_2"="sequence_ID")) %>%
+  mutate(label_edited=factor(label_edited,levels=pull(keystone_taxa,"label_edited")))
+```
+
+## 8. 图 4：微生物互作网络的环境依赖性综合可视化
+
+在完成底层交互强度和促进比例的计算后，我们将分别绘制：核心物种的互作强度与促进比例随温度的散点图（Fig 4A-B）、温度梯度下的核心物种更替热图（Fig 4C）、以及整体群落互作分布的密度山峰图（Fig 4D-E）。最后，使用 `ggpubr` 包将它们拼接成一张完整的出版级图表。
+
+```{r}
+#| label: fig-4-temperature-dependency
+#| fig-cap: "图4：微生物互作网络随温度的动态变化综合面板"
+#| fig-width: 13
+#| fig-height: 12
+#| warning: false
+#| message: false
+
+# ==========================================
+# 1. 图 4A-B: 核心物种的互作强度与促进比例散点图
+# ==========================================
+## 提取选定的核心物种用于图 4A (Interactiveness)
+plot_keystone_interactiveness_subset <- ggplot(filter(keystone_taxa_var_inter_matrix,target_2%in%c("Proteobacteria_22_1","Proteobacteria_7166_1","Dinoflagellata_1198_1","Dinoflagellata_1793_1") ),aes(y=mean_interactiveness,x=temperature)) +
+  geom_errorbar(aes(ymin=mean_interactiveness-se_interactiveness,ymax=mean_interactiveness+se_interactiveness,color=label_edited),width=0.2) +
+  geom_line(aes(color=label_edited)) +
+  geom_point(fill="white",color="white",shape=21,size=3) +
+  geom_point(aes(fill=label_edited),color="black",shape=21,size=3,alpha=.8) +
+  theme_classic() +
+  facet_wrap(~label_edited,scale="free",nrow=1) +
+  xlab("Temperature (°C)") +
+  ylab("Interactiveness") +
+  scale_color_manual(values=pull(filter(keystone_taxa,sequence_ID%in%c("Proteobacteria_22_1","Proteobacteria_7166_1","Dinoflagellata_1198_1","Dinoflagellata_1793_1")),"color")) +
+  scale_fill_manual(values=pull(filter(keystone_taxa,sequence_ID%in%c("Proteobacteria_22_1","Proteobacteria_7166_1","Dinoflagellata_1198_1","Dinoflagellata_1793_1")),"color")) +
+  scale_x_continuous(breaks=seq(13,26,2)) +
+  theme(legend.text = element_markdown(),
+        plot.margin = unit(c(0.2,0.1,0,0.1), 'lines'),
+        text = element_text(size=12),
+        strip.text.x = element_markdown(size=8),
+        strip.background.x=element_rect(color = NA),
+        legend.position = "none")
+
+## 提取选定的核心物种用于图 4B (Facilitation %)
+color_vector_B <- c('#003c30','#01665e','#35978f','#80cdc1','#c7eae5','#f5f5f5','#f6e8c3','#dfc27d','#bf812d','#8c510a','#543005')
+
+plot_keystone_facilitation_subset <- ggplot(filter(keystone_taxa_var_inter_matrix,target_2%in%c("Archaea_164_1","Proteobacteria_11431_1","Bacteroidetes_919_2","Proteobacteria_11429_2")),aes(y=mean_perc_facilitation,x=temperature)) +
+  annotate(geom="rect",xmin=-Inf,xmax=Inf,ymin=50,ymax=Inf,fill=color_vector_B[7],color=color_vector_B[7],alpha=.4) +
+  annotate(geom="rect",xmin=-Inf,xmax=Inf,ymin=50,ymax=-Inf,fill=color_vector_B[5],color=color_vector_B[5],alpha=.4) +
+  geom_hline(yintercept=50,linetype="dashed") +
+  geom_errorbar(aes(ymin=mean_perc_facilitation-se_perc_facilitation,ymax=mean_perc_facilitation+se_perc_facilitation,color=label_edited),width=0.2) +
+  geom_line(aes(color=label_edited)) +
+  geom_point(fill="white",color="white",shape=21,size=3) +
+  geom_point(aes(fill=label_edited),color="black",shape=21,size=3,alpha=.8) +
+  theme_classic() +
+  facet_wrap(~label_edited,scale="free",nrow=1) +
+  xlab("Temperature (°C)") +
+  ylab("Facilitation (%)") +
+  scale_color_manual(values=pull(filter(keystone_taxa,sequence_ID%in%c("Archaea_164_1","Proteobacteria_11431_1","Bacteroidetes_919_2","Proteobacteria_11429_2")),"color")) +
+  scale_fill_manual(values=pull(filter(keystone_taxa,sequence_ID%in%c("Archaea_164_1","Proteobacteria_11431_1","Bacteroidetes_919_2","Proteobacteria_11429_2")),"color")) +
+  scale_x_continuous(breaks=seq(13,26,2)) +
+  theme(legend.text = element_markdown(),
+        plot.margin = unit(c(0.2,0.1,0,0.1), 'lines'),
+        text = element_text(size=12),
+        strip.text.x = element_markdown(size=8),
+        strip.background.x=element_rect(color = NA),
+        legend.position = "none")
+
+# ==========================================
+# 2. 图 4C: 核心物种更替热图
+# ==========================================
+temperature_levels <- data.frame(temperature=unique(pull(time_var_inter_matrix,"temperature")))
+
+for (i in 1:nrow(temperature_levels)){
+  time_var_inter_matrix_i <- filter(time_var_inter_matrix,temperature==temperature_levels$temperature[i]) %>%
+    ungroup() %>%
+    arrange(-mean_interactiveness) %>%
+    slice(1:16) # 阈值：排名前16
+  temp_keystone_taxa_i <- select(time_var_inter_matrix_i,target_2,temperature)
+  if(i==1){temp_keystone_taxa<-temp_keystone_taxa_i}else{temp_keystone_taxa<-rbind(temp_keystone_taxa,temp_keystone_taxa_i)}
+}
+
+factor_levels <- taxa_info %>% filter(sequence_ID%in%pull(temp_keystone_taxa,"target_2")) %>% pull(sequence_ID) %>% rev()
+groups_colors <- drop_na(unique(select(taxa_info,group,color)))
+
+plot_data <- temp_keystone_taxa %>%
+  left_join(taxa_info,by=c("target_2"="sequence_ID")) %>%
+  left_join(groups_colors) %>%
+  mutate(target_2=factor(target_2,levels=factor_levels)) 
+
+axis_labels <- data.frame(sequence_ID=factor_levels) %>%
+  left_join(group_short_IDs, by="sequence_ID") %>%
+  mutate(group_short_ID=ifelse(is.na(group_short_ID)," ",group_short_ID)) %>%
+  pull("group_short_ID")
+
+plot_keystone_temperature <- ggplot(plot_data,aes(y=target_2,x=temperature)) +
+  geom_hline(aes(yintercept=target_2),color="white") +
+  geom_hline(data=filter(plot_data,target_2%in%pull(keystone_taxa,"sequence_ID")),aes(yintercept=target_2),linewidth=3,color="gray") +
+  geom_tile(fill="white") +
+  geom_point(color=pull(plot_data,"color"),size=2) +
+  theme_classic() +
+  scale_x_continuous(breaks=seq(13,26,2)) +
+  scale_y_discrete(labels=axis_labels) +
+  theme(panel.grid.major.y = element_line(linewidth=1),
+        panel.grid.minor.y = element_line(linewidth=1),
+        legend.position="none",
+        text = element_text(size=12)) +
+  ylab("") + xlab("Temperature (°C)")
+
+# ==========================================
+# 3. 图 4D-E: 密度山峰图与统计学检验
+# ==========================================
+temp_combinations <- expand.grid(temp_1=unique(time_var_inter_matrix$temperature),temp_2=unique(time_var_inter_matrix$temperature)) %>%
+  mutate(ks_test=NA, variable="Interactiveness")
+
+for(i in 1:nrow(temp_combinations)){ 
+  temp_1_i <- temp_combinations$temp_1[i]
+  temp_2_i <- temp_combinations$temp_2[i]
+  distribution_1 <- filter(time_var_inter_matrix,temperature==temp_1_i) %>% pull("mean_interactiveness")
+  distribution_2 <- filter(time_var_inter_matrix,temperature==temp_2_i) %>% pull("mean_interactiveness")
+  ks_test <- ks.test(distribution_1,distribution_2)
+  temp_combinations$ks_test[i] <- ks_test[["p.value"]]
+}
+
+temp_letters <- data.frame(temperature=unique(time_var_inter_matrix$temperature),temp_letter=c("a","b","c","d","e","f","g","h","i","j","k","l","m","n"),test_letters=NA)
+for (i in 1:nrow(temp_letters)){
+  temp_i <- temp_letters$temperature[i]
+  ks_test_temp_i <- filter(temp_combinations,temp_1==temp_i) %>%
+    mutate(sig=ifelse(ks_test<0.05,1,0)) %>%
+    mutate(temp_letter_2=c("a","b","c","d","e","f","g","h","i","j","k","l","m","n")) %>%
+    filter(sig==0) %>%
+    pull("temp_letter_2") 
+  temp_letters$test_letters[i] <- str_c(ks_test_temp_i , collapse = "")
+}
+
+color_vector_ridges <- c('#053061','#2166ac','#4393c3','#92c5de','#d1e5f0','#f7f7f7','#fddbc7','#f4a582','#d6604d','#b2182b','#67001f')
+colors <- colorRampPalette(color_vector_ridges)
+
+plot_interactiveness <- ggplot(time_var_inter_matrix, aes(x = mean_interactiveness, y = as.character(temperature))) +
+  geom_density_ridges_gradient(aes(,fill=as.character(temperature)),scale = 3, rel_min_height = 0.01,quantile_lines=TRUE, quantile_fun=function(mean_interactiveness,...)median(mean_interactiveness),alpha=.8) +
+  geom_label(data=temp_letters,aes(label=test_letters,y=as.character(temperature),x=1.25), angle = 90,label.size=NA) +
+  xlim(0,1.5) +
+  scale_fill_manual(values=colors(14)) +
+  scale_y_discrete(breaks=seq(13,26,2)) +
+  theme_classic() +
+  theme(legend.position = "none",
+        text = element_text(size=12),
+        panel.grid.major.y = element_line(linewidth=1),
+        panel.grid.minor.y = element_line(linewidth=1)) +
+  ylab("Temperature (°C)") + xlab("Interactiveness") + coord_flip()
+
+plot_perc_facilitation <- ggplot(time_var_inter_matrix, aes(x = mean_perc_facilitation, y = as.character(temperature))) +
+  geom_density_ridges_gradient(aes(,fill=as.character(temperature)),scale = 3, rel_min_height = 0.01,quantile_lines=TRUE, quantile_fun=function(perc_facilitation,...)median(perc_facilitation),alpha=.8) +
+  geom_label(data=temp_letters,aes(label=test_letters,y=as.character(temperature),x=-7), angle = 90,label.size = NA) +
+  geom_vline(xintercept=50,linetype="dashed") +
+  scale_y_discrete(breaks=seq(13,26,2)) +
+  scale_fill_manual(values=colors(14)) +
+  theme_classic() +
+  theme(legend.position = "none",
+        text = element_text(size=12),
+        panel.grid.major.y = element_line(linewidth=1),
+        panel.grid.minor.y = element_line(linewidth=1)) +
+  scale_x_continuous(breaks=seq(0,100,25)) +
+  ylab("Temperature (°C)") + xlab("Facilitation (%)") + coord_flip()
+
+# ==========================================
+# 4. 拼图与保存
+# ==========================================
+row_1 <- ggarrange(plot_keystone_interactiveness_subset,plot_keystone_facilitation_subset,nrow=2,ncol=1,labels=c("A","B"))
+row_2 <- ggarrange(plot_keystone_temperature,plot_interactiveness,plot_perc_facilitation,labels=c("C","D","E"),ncol=3,nrow=1,widths=c(1.6,1.2,1.2))
+
+# 【修改点1】将拼好的图塞进一个叫 final_plot 的盒子里，而不是直接让它在网页上展示（避免 caption 报错）
+final_plot <- ggarrange(row_1,row_2,nrow=2,ncol=1)
+
+# 【修改点2】明确告诉 ggsave，把刚才装进盒子里的 final_plot 存成 PDF
+ggsave("../plots/Fig_4_temperature_dependency.pdf", plot = final_plot, height=12, width=13)

@@ -1,0 +1,2 @@
+"theta","alpha","lambda","target","cv_min_dat_perc","rmse_cv","rho_cv","const_pred_rmse","const_pred_rho","inv_rmse_cv","performance_cv","rmse_fit","rho_fit","inv_rmse_fit","performance_fit"
+8,0.7,0.032,"Bacillariophyta_138_1",10.054844606947,0.809599188003333,0.138437943614157,1.00537776448222,0.137049726785005,1.3890166884442,1.39589842933095,0.724581493530058,0.206774104226828,0.724581493530058,0.75350771127113

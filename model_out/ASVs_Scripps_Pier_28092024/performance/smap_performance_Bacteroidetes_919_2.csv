@@ -1,0 +1,2 @@
+"theta","alpha","lambda","target","cv_min_dat_perc","rmse_cv","rho_cv","const_pred_rmse","const_pred_rho","inv_rmse_cv","performance_cv","rmse_fit","rho_fit","inv_rmse_fit","performance_fit"
+8,0.5,0.032,"Bacteroidetes_919_2",10.054844606947,0.472450904215119,0.589385739610435,0.505704257856069,0.552764540249924,1.26686810967249,1.39725815702085,0.458439508586203,0.587847227547235,0.458439508586203,0.745473772823518

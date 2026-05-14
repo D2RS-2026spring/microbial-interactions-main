@@ -1,0 +1,2 @@
+"theta","alpha","lambda","target","cv_min_dat_perc","rmse_cv","rho_cv","const_pred_rmse","const_pred_rho","inv_rmse_cv","performance_cv","rmse_fit","rho_fit","inv_rmse_fit","performance_fit"
+8,0.1,0.032,"Raphidophyceae_3_1",10.054844606947,0.29363323410326,0.505500750780723,0.378172177245405,0.493547770738143,0.906521776575963,1.0379367709289,0.281234801081949,0.555911839545365,0.281234801081949,0.623001594449256

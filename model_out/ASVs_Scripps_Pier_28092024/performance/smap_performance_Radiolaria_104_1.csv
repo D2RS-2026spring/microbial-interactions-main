@@ -1,0 +1,2 @@
+"theta","alpha","lambda","target","cv_min_dat_perc","rmse_cv","rho_cv","const_pred_rmse","const_pred_rho","inv_rmse_cv","performance_cv","rmse_fit","rho_fit","inv_rmse_fit","performance_fit"
+3,0.1,0.178,"Radiolaria_104_1",10.054844606947,0.443422128063374,0.342443270693052,0.600495593505198,0.331782877084895,1.00888762175046,1.06542086846666,0.419876464494756,0.363281513082094,0.419876464494756,0.555220409552667

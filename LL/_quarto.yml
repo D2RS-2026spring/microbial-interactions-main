@@ -1,0 +1,22 @@
+project:
+  type: book
+
+book:
+  title: "合成菌群文献复现项目" 
+  author: "liuhaodong,luanyehui"
+  chapters:
+    - index.qmd
+    - 01-community-timeseries.qmd  
+    # - intro.qmd                  
+    # - summary.qmd                
+    - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+  pdf:
+    documentclass: scrreprt
