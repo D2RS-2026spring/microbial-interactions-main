@@ -1,0 +1,56 @@
+---
+title: "图 2：微生物互作网络整体特征与动态变化"
+author: "lyh-2025"
+format: html
+editor: visual
+---
+
+# 1. 研究背景与生态学意义
+
+在微观生态学中，探究群落内部是“相亲相爱（互利共生）”多，还是“互相内卷（竞争排斥）”多，是理解群落稳定性的核心。
+
+本部分重点复现原文图 2 (Fig 2 A-C)。通过提取 S-map 模型的非线性动态互作强度，我们旨在量化在 6 年的时间序列中，海洋微生物群落互作网络（Microbial Interaction Network）的整体特征。结果将直观地展示群落中正向促进作用（Facilitation）与负向竞争作用（Competition）的比例分布。
+
+# 2. 准备工具箱
+```{r load-libraries}
+#| message: false
+#| warning: false
+
+# 定义需要的包
+pkgs <- c("data.table", "ggplot2", "ggpubr", "ggridges", "ggpattern", "moments")
+
+# 自动检测并安装缺失包（强制使用二进制版本，绕过编译错误）
+for (p in pkgs) {
+  install.packages(p, repos = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/", type = "binary")
+}
+
+# 依次加载
+library(data.table)
+library(ggplot2)
+library(ggpubr)
+library(ggridges)
+
+# 设置输出文件夹
+if(!dir.exists("../plots")) dir.create("../plots")
+```
+# 3. 读取核心互动数据
+```{r load-data}
+# 读取 1GB 的核心 S-map 互作数据（这一步可能需要几秒钟，请耐心等待）
+# 注意：路径是相对路径，从 LL 文件夹向上找 model_out 文件夹
+smap_data <- fread("../model_out/MDR_smap_interactions_Scripps_Pier_ASVs_tp_2_28092024.csv")
+
+# 简单预览一下数据维度，确认账号 B 成功拿到了 1GB 的弹药
+dim(smap_data)
+```
+
+# 4. 执行原作者的绘图脚本代码
+```{r run-author-script}
+# 这个命令会直接运行原作者写好的 R 脚本，它会自动读取数据、计算并画出图 2
+# local = TRUE 保证它使用我们刚才读取的 smap_data 环境
+source("../scripts/4-Fig_2A-C_microbial_interactions.R", local = TRUE)
+```
+# 5. 结果展示与保存
+```{r show-plots}
+# 此时图表应该已经被原作者的脚本保存到了 plots 文件夹中。
+print("图 2 (A-C) 已成功渲染并保存至 plots/ 目录中！")
+```
