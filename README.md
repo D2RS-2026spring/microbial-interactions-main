@@ -1,157 +1,97 @@
-# Quantifying Marine Microbial Interactions from a 6-Year Time Series
+📊 海洋微生物群落演替与互作网络动态特征复现项目
+本项目基于 Quarto Book 技术栈构建，完整复现了原论文中涉及群落结构时间序列、网络整体特征（促进 vs 竞争）以及环境驱动力分析的三大核心生态学结论：
 
-[![License: MIT](https://img.shields.io/badge/Code_License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![License: CC0](https://img.shields.io/badge/Data_License-CC0_1.0-lightgrey.svg)](https://creativecommons.org/publicdomain/zero/1.0/)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17595082.svg)](https://doi.org/10.5281/zenodo.17595082) 
+图 1A：微生物群落结构随时间演替的长期时间序列变化。
 
-This repository contains the R code and processed data used for the manuscript: **Temperature alters interactions and keystone taxa in the marine microbiome**.
+图 2A-C：微生物互作网络整体特征与动态变化趋势。
 
-The analysis uses an empirical modeling approach (MDR S-map) and a six-year (2018-2023) record of microbial community composition (16S & 18S rRNA genes) collected at the Scripps Institution of Oceanography pier to quantify microbial interactions and their temporal changes.
+图 4：核心微生物互作网络随外部水温演变的环境依赖性综合面板（A-E）。
 
-## 📝 Abstract
+⚙️ 1. 环境准备 (Prerequisites)
+本项目使用 R 语言 进行数据流式处理与绘图。请确保您的系统已安装 Quarto CLI 以及 R 语言运行环境。
 
-Marine microbes shape global biogeochemical cycles and marine food webs. While biotic interactions underpin microbial community dynamics, most interactions between wild marine microbes are unknown. Here, we used empirical dynamic modeling to examine a six-year record of coastal microbial community composition to quantify microbial interactions and their changes through time. We found that, on average, marine microbes interact with 20% of other taxa in the community, most interactions are weak (80%), and that positive interactions are more common than negative interactions. Keystone taxa, defined as having disproportionally strong and frequent interactions, were not generally the most abundant taxa. The strength and sign of interactions, as well as the identity of the keystone taxa, varied through time and with changes in water temperature. An increase of 13°C, the dynamic range in water temperature at this location during the observational period, led to a 33% less interactive microbial community and an 11% shift towards more positive interactions. Only a few of the keystone taxa are the most interactive in the community at all times, and we found a temporal succession of keystone taxa. These results reveal that interactions in the marine microbiome are common, more facilitative than previously thought, and highly variable through time. 
+1.1 安装基础工具
+Quarto CLI: v1.3 或更高版本（官方下载链接）
 
-## 📂 Repository Structure & Files
+R 语言: v4.0 或更高版本
 
-This repository contains the data files, model output, and code to reproduce the analysis and main figures. We recommend keeping the directory structure and running all code from the R environment `r_environment.Rproj`.
+1.2 安装 R 依赖包
+为了保障代码在不同电脑上都能无缝运行，我们在代码中内置了清华大学 CRAN 镜像源，并强制采用预编译的二进制（binary）版本进行安装，完美绕过本地本地 C++ 静态编译引发的各类环境报错。
 
-### `/data/`
-This folder contains the raw data used in the study and information on the microbial ASVs.
+打开 R 终端或 RStudio，直接运行以下命令安装项目所需的全部核心扩展包：
 
-* `data_sequences_0.1_rel_ab_0.5_occ_binned_4_days_with_temperature.csv`
-    This .csv file contains raw data on the relative abundance of the most common microbial taxa found at the Scripps Pier. We selected microbes that were present at least 50% of the time (abundance > 0) and had an average relative abundance > 0.1% when present. The data has been binned into 4-day intervals. This file also includes surface water temperature measurements (°C).
-* `taxa_information.csv`
-    This .csv contains the taxonomic classification and other details (e.g., average relative abundance, interactiveness) of the most common microbial ASVs.
+R
+install.packages(c("tidyverse", "data.table", "ggplot2", "ggpubr", "ggridges", "ggtext", "ggpattern", "moments"))
+📁 2. 严谨的目录结构核对 (Directory)
+本项目的所有分析脚本与数据读取均采用相对路径。请在运行前严格核对您的本地目录是否与下方完全一致：
 
-### `/model_out/`
-This folder contains the output from the MDR S-map models used to infer interactions.
+Plaintext
+MICROBIAL-INTERACTION-xxx/ (本地克隆的仓库根目录)
+│
+├── README.md                    # 👈 当前说明文档（请存放在这里）
+├── LICENSE                      # 许可证文件
+├── r_environment.Rproj          # RStudio 项目环境
+├── .gitignore                   # Git 忽略文件（已自动忽略 .quarto 与 _book 缓存）
+│
+├── data/                        # 📜 基础元数据与群落丰度数据
+│   ├── taxa_information.csv
+│   └── data_sequences_0.1_rel_ab_0.5_occ_binned_4_days_with_temperature.csv
+│
+├── model_out/                   # 💾 网络模型输出（包含 1GB 巨型数据文件）
+│   ├── MDR_smap_interactions_Scripps_Pier_ASVs_tp_2_28092024.csv
+│   ├── strongest_interactions_Scripps_Pier_ASVs_tp_2_28092024.csv
+│   └── keystone_taxa_Scripps_Pier_ASVs_tp_2_28092024.csv
+│
+├── scripts/                     # ⚙️ 原作者提供的原始 R 脚本
+│   └── 4-Fig_2A-C_microbial_interactions.R
+│
+├── plots/                       # 🖼️ 核心科研图表导出目标文件夹
+│
+└── LL/                          # 📂 Quarto 项目核心工作区
+    ├── _quarto.yml              # Quarto 配置文件
+    ├── index.qmd                # 本地电子书首页说明
+    ├── intro.qmd                # 引言说明
+    ├── summary.qmd              # 总结说明
+    ├── references.qmd / .bib    # 文献引用配置
+    ├── 01-community-timeseries.qmd # 【重构分析】图 1A 与 图 4 环境依赖性代码
+    └── 02-network-interactions.qmd # 【沙盒调用】图 2A-C 微生物互作整体网络特征代码
+⚠️ 运行必看：请确保项目根目录下存在空的 plots/ 文件夹。代码中所有读取数据的相对路径均以 LL/ 文件夹为基准向上查找（如 ../data/、../model_out/），切勿随意更改外层文件夹的名称！
 
-* `/ASVs_Scripps_Pier_28092024/`
-    This folder contains the raw output folders generated by the function in `scripts/functions/interaction_coefficients_function_rEDM_1.15.3_pred_tp.R`.
-    * `/coefficients/`: Estimated MDR S-map coefficients for all best-performing models.
-    * `/distance_matrix/`: Estimated multiview distances for each microbial taxon.
-    * `/interactions/`: Estimated interaction strengths (weighted average of coefficients).
-    * `/multivariate_embeddings/`: Randomly generated multivariate embeddings and their predictive performance.
-    * `/parametrization/`: Results from the MDR S-map parameterization step (leave-future-out cross-validation).
-    * `/performance/`: Performance of the best MDR S-map models.
-* `keystone_taxa_Scripps_Pier_ASVs_tp_2_28092024.csv`
-    This .csv contains the taxonomic classification and details of the keystone microbial taxa.
-* `MDR_smap_interactions_Scripps_Pier_ASVs_tp_2_28092024.csv`
-    This .csv contains the interactions among all microbes over time, aggregating the files from the `/interactions/` sub-folder.
-* `strongest_interactions_Scripps_Pier_ASVs_tp_2_28092024.csv`
-    This .csv lists the strongest pairwise interactions (strength and occurrence > 50% quantile).
+🚀 3. 一键复现与发布步骤 (Execution & Publish)
+打开您的终端（Terminal 或 CMD），进入到 LL 子文件夹中进行编译：
 
-### `/plots/`
-This folder is the default save location for all plots produced by the analysis scripts.
+📌 步骤 A：本地一键编译整个项目 (Render)
+Bash
+# 1. 必须先进入到包含 _quarto.yml 的 LL 工作区
+cd LL
 
-### `/scripts/`
-This folder contains all scripts to reproduce the MDR S-map analysis and manuscript figures.
-* `/functions/interaction_coefficients_function_rEDM_1.15.3_pred_tp.R`
-    This script provides the function for inferring interactions among taxa. The first variable of the input data should be time, and the rest should be taxa abundances and environmental variables.
+# 2. 一键编译整本 Quarto Book
+quarto render
+运行机制：该命令会流式调用 01-community-timeseries.qmd（自主重构计算）和 02-network-interactions.qmd（通过 local = TRUE 沙盒安全调用外层 ../scripts/ 下的原作者官方绘图流水线）。
 
-### `r_environment.Rproj`
-This is the R project file. We highly recommend using this environment (e.g., by opening it in RStudio) when running the code in `scripts/`.
+📌 步骤 B：一键发布到云端 (Publish)
+如果您需要将复现生成的电子书网页部署到 GitHub Pages 上供在线浏览，请在 LL 目录下直接运行：
 
-## 💻 Requirements & Installation
+Bash
+quarto publish gh-pages
+确认提示后输入 Y 即可。发布成功后，终端末尾会生成一个在线公网链接，老师点击即可直接查阅。
 
-The code was developed and tested using **R (version 4.4.0)**.
+⏳ 硬件性能与耗时说明：
+由于系统在编译时，两个 .qmd 文件均需要高频、流式地从外层 ../model_out/ 中读取磁盘上 1GB 左右的巨型网络系数 CSV 文件。根据您电脑固态硬盘（SSD）的读写性能，代码在执行到 fread 区块时，可能会卡顿 10 ~ 30 秒，这属于正常的数据 I/O 现象，系统并未死机，请耐心等待其全部编译完成。
 
-To set up the R environment, open `r_environment.Rproj` in RStudio. This will automatically set the correct working directory.
+🎯 4. 预期复现成果 (Expected Output)
+4.1 本地/在线静态网页
+编译完成后，会在 LL/ 目录下生成 _book/ 文件夹。其中包含：
 
-### Key R Packages and Versions
+01-community-timeseries.html：直观展示群落结构时间序列堆叠图、水温波动折线、以及图 4 综合面板。
 
-| Category | Package | Version | Usage in Project |
-| :--- | :--- | :--- | :--- |
-| **Core Analysis** | `rEDM` | **1.15.4** | Used for Simplex projection. |
-| | **`glmnet`** | **4.1-10** | Performs the Elastic-Net regularized regression to extract sparse interaction coefficients. |
-| **Data Handling** | `tidyverse` | **2.0.0** | Essential for data cleaning, piping, and `ggplot2`. |
-| | `data.table` | **1.17.8** | Fast reading/writing of large interaction matrices. |
-| **Ecology & Stats**| **`vegan`** | **2.7-2** | Used for distance matrix calculations in the state space and for NMDS ordination. |
-| | `moments` | **0.14.1** | Calculating skewness and kurtosis of distributions. |
-| **Visualization** | `circlize` | **0.4.16** | Creating the complex keystone chord diagrams. |
-| | `ggpubr` | **0.6.2** | Arranging multi-panel figures and adding stats. |
-| | `ggridges` | **0.5.7** | Creating the temperature ridgeline density plots. |
-| | `ggpattern` | **1.2.1** | Adding striped patterns to interaction densities. |
-| | `ggtext` | **0.1.2** | Rendering Markdown/Italics in plot labels. |
+02-network-interactions.html：展示群落“相亲相爱”与“互相内卷”整体网络特征的中文生态学解读。
 
-To ensure full reproducibility of the computational environment, we use the renv package.
+4.2 出版级高清矢量图文件
+在项目外层的 plots/ 文件夹下，会自动安全导出以下高清科研 PDF 图表：
 
-Step 1: Clone the Repository
+Fig_1A_microbial_community_time_series.pdf（图 1A）
 
-```bash
-git clone https://github.com/your-username/your-repository-name.git
-cd your-repository-name
-```
+Fig_4_temperature_dependency.pdf（图 4 综合大图）
 
-Step 2: Open the Project
-Open the r_environment.Rproj file in RStudio.
-
-Step 3: Restore the Environment
-RStudio should automatically detect renv and prompt you to install it. Once renv is ready, run the following command in the R console to install all required packages at their specific versions:
-
-```R
-# Install renv if not already present
-if (!require("renv")) install.packages("renv")
-
-# Sync the project library with the lockfile
-renv::restore()
-```
-
-## 🚀 How to Run the Analysis
-
-The scripts in the `/scripts/` folder are designed to be run in numerical order to reproduce the analysis and main figures.
-
-1.  **`1-Fig_1A_microbial_community_time_series.R`**
-    Recreates Fig. 1A, showing how microbial ASVs change over time.
-2.  **`2-mdr_smap.R`**
-    Runs the main MDR S-map analysis using the function from the `/functions/` folder.
-    **⚠️ Warning:** This script is computationally intensive and can take very long to run. It can be run on a server and parallelized.
-3.  **`3-gather_mdr_smap_coefficients.R`**
-    Gathers the interaction results from `model_out/interactions` and saves them into the aggregated file `MDR_smap_interactions_...csv`.
-4.  **`4-Fig_2A-C_microbial_interactions.R`**
-    Recreates Fig. 2, giving an overview of microbial interactions.
-5.  **`5-Fig_3A_keystone_chorddiagram.R`**
-    Recreates Fig. 3A, the chord diagram of keystone interactions.
-6.  **`6-Fig_3B_keystone_nmds.R`**
-    Recreates Fig. 3B, showing the NMDS analysis of keystone microbe interactions.
-7.  **`7-Fig_4A-E_temperature_dependency.R`**
-    Recreates Fig. 4, showing how interactions change along the water temperature gradient.
-
-## 📊 Data Access & Reproducibility
-
-To ensure a lightweight and functional repository, this GitHub project contains all necessary analysis scripts, metadata, and smaller data files. However, high-dimensional model outputs that exceed GitHub's file size limits are hosted externally.
-
-### Large Datasets
-The following file is required to reproduce the figures in the manuscript but is too large for GitHub (approx. 1 GB):
-* **`MDR_smap_interactions_Scripps_Pier_ASVs_tp_2_28092024.csv`**: This file contains the time-varying interaction coefficients for the entire microbial community.
-
-**How to access:**
-1.  Download the dataset from our **Zenodo Repository**: `https://doi.org/10.5281/zenodo.17595082`
-2.  Place the downloaded `.csv` file into the `model_out/` directory of this project.
-3.  The scripts in the `scripts/` folder will then be able to read the data automatically.
-
-## ⚖️ License
-
-* **Code:** All R scripts in this repository (e.g., in the `/scripts/` folder) are released under the **MIT License**. See the `LICENSE` file for details.
-* **Data:** All data files (e.g., in the `/data/` and `/model_out/` folders) are dedicated to the public domain under **CC0 (Creative Commons Zero)**.
-
-## 📄 Citation
-
-If you use this code or data in your own work, please cite both the original manuscript and this repository.
-
-### 1. Manuscript
-[Merz, et al. (2025). "Temperature alters interactions and keystone taxa in the marine microbiome." *ISME J*. DOI: 10.1093/ismejo/wraf287]
-
-### 2. Code & Data Repository
-[Merz. (2025). "Quantifying Marine Microbial Interactions from a 6-Year Time Series" (Version 1.0) [R]. Zenodo. DOI: 10.5281/zenodo.17595082]
-
-### 3. Raw Data
-* Microbial Data: NCBI SRA BioProject **PRJNA662174**
-* Temperature Data: **SCCOOS Scripps Pier Shore Station**
-
-## ✉️ Contact
-
-For questions about the code, analysis, or data, please get in touch with Ewa Merz at e2merz@ucsd.edu or open an issue in this repository.
-
-Ewa Merz - [ORCID: 0000-0001-8699-9414]
+Fig_2A.pdf、Fig_2B.pdf、Fig_2C.pdf（由作者原生脚本生成的图 2 核心面板）
