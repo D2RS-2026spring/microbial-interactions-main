@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.9.37">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,6 +10,9 @@
 
 <title>1&nbsp; 核心结果：微生物群落的时间序列变化 – 合成菌群文献复现项目</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -70,15 +73,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="./index.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-70a47bd5681a7291082a5b9f83d58762.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-fb02e2f4228f4d0f27ccf1fa132ad0ea.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -147,7 +149,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Preface</span></a>
+ <span class="menu-text">合成菌群文献复现项目</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -177,10 +179,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#图表属性配置与总丰度计算" id="toc-图表属性配置与总丰度计算" class="nav-link" data-scroll-target="#图表属性配置与总丰度计算"><span class="header-section-number">1.3</span> 3. 图表属性配置与总丰度计算</a></li>
   <li><a href="#核心结果可视化与解读" id="toc-核心结果可视化与解读" class="nav-link" data-scroll-target="#核心结果可视化与解读"><span class="header-section-number">1.4</span> 4. 核心结果可视化与解读…</a></li>
   <li><a href="#环境驱动力分析温度的时间序列" id="toc-环境驱动力分析温度的时间序列" class="nav-link" data-scroll-target="#环境驱动力分析温度的时间序列"><span class="header-section-number">1.5</span> 5. 环境驱动力分析：温度的时间序列</a></li>
-  <li><a href="#重新读取原始宽表数据并专门提取温度列" id="toc-重新读取原始宽表数据并专门提取温度列" class="nav-link" data-scroll-target="#重新读取原始宽表数据并专门提取温度列"><span class="header-section-number">2</span> 重新读取原始宽表数据并专门提取温度列</a></li>
-  <li><a href="#整理环境数据剔除多余的物种丰度列保留时间和温度" id="toc-整理环境数据剔除多余的物种丰度列保留时间和温度" class="nav-link" data-scroll-target="#整理环境数据剔除多余的物种丰度列保留时间和温度"><span class="header-section-number">3</span> 整理环境数据（剔除多余的物种丰度列，保留时间和温度）</a></li>
-  <li><a href="#绘制温度变化折线图" id="toc-绘制温度变化折线图" class="nav-link" data-scroll-target="#绘制温度变化折线图"><span class="header-section-number">4</span> 绘制温度变化折线图</a></li>
-  <li><a href="#保存图片到-plots-文件夹" id="toc-保存图片到-plots-文件夹" class="nav-link" data-scroll-target="#保存图片到-plots-文件夹"><span class="header-section-number">5</span> 保存图片到 plots 文件夹</a></li>
+  <li><a href="#图-4微生物互作网络的环境依赖性" id="toc-图-4微生物互作网络的环境依赖性" class="nav-link" data-scroll-target="#图-4微生物互作网络的环境依赖性"><span class="header-section-number">1.6</span> 6. 图 4：微生物互作网络的环境依赖性</a></li>
   </ul>
 </nav>
     </div>
@@ -302,23 +301,50 @@ Figure&nbsp;1.1: 图1：微生物群落组成与总丰度的时间序列变化
 </section>
 <section id="环境驱动力分析温度的时间序列" class="level2" data-number="1.5">
 <h2 data-number="1.5" class="anchored" data-anchor-id="环境驱动力分析温度的时间序列"><span class="header-section-number">1.5</span> 5. 环境驱动力分析：温度的时间序列</h2>
-<p>在跳过极其消耗算力的微生物内部互作计算后，我们直接探索外部环境因子（如温度）对群落演替的潜在影响。原论文的图 4 探讨了这种温度依赖性。由于我们本地的数据集已经包含了水温记录，我们可以直接提取并将其可视化。 #| label: fig-temperature-dynamics #| fig-cap: “图2：采样期间水温的时间序列与季节性波动” #| fig-width: 10 #| fig-height: 3 #| warning: false #| message: false</p>
+<p>在跳过极其消耗算力的微生物内部互作计算后，我们直接探索外部环境因子（如温度）对群落演替的潜在影响。原论文的图 4 探讨了这种温度依赖性。由于我们本地的数据集已经包含了水温记录，我们可以直接提取并将其可视化。</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 重新读取原始宽表数据并专门提取温度列</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>raw_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"../data/data_sequences_0.1_rel_ab_0.5_occ_binned_4_days_with_temperature.csv"</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 整理环境数据（剔除多余的物种丰度列，保留时间和温度）</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>env_data <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(date, temperature) <span class="sc">%&gt;%</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 确保日期列被 R 语言正确识别为时间格式</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(date))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 绘制温度变化折线图</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(env_data, <span class="fu">aes</span>(<span class="at">x =</span> date, <span class="at">y =</span> temperature)) <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 绘制温度主线（橙红色）</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#d95f02"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 添加一条平滑的长期趋势线（黑色虚线）</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Temperature (°C)"</span>, <span class="at">x =</span> <span class="st">"Time"</span>) <span class="sc">+</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_breaks =</span> <span class="st">"1 year"</span>, <span class="at">date_labels =</span> <span class="st">"%Y"</span>, <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 保存图片到 plots 文件夹</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"../plots/Fig_4A_Temperature_series.pdf"</span>, <span class="at">width =</span> <span class="dv">10</span>, <span class="at">height =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-temperature-dynamics" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-temperature-dynamics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01-community-timeseries_files/figure-html/fig-temperature-dynamics-1.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-temperature-dynamics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1.2: 图2：采样期间水温的时间序列与季节性波动
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
-<section id="重新读取原始宽表数据并专门提取温度列" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> 重新读取原始宽表数据并专门提取温度列</h1>
-<p>raw_data &lt;- read.csv(“../data/data_sequences_0.1_rel_ab_0.5_occ_binned_4_days_with_temperature.csv”)</p>
-</section>
-<section id="整理环境数据剔除多余的物种丰度列保留时间和温度" class="level1" data-number="3">
-<h1 data-number="3"><span class="header-section-number">3</span> 整理环境数据（剔除多余的物种丰度列，保留时间和温度）</h1>
-<p>env_data &lt;- raw_data %&gt;% select(date, temperature) %&gt;% # 确保日期列被 R 语言正确识别为时间格式 mutate(date = as.Date(date))</p>
-</section>
-<section id="绘制温度变化折线图" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> 绘制温度变化折线图</h1>
-<p>ggplot(env_data, aes(x = date, y = temperature)) + # 绘制温度主线（橙红色） geom_line(color = “#d95f02”, linewidth = 0.8) + # 添加一条平滑的长期趋势线（黑色虚线） geom_smooth(method = “loess”, color = “black”, linetype = “dashed”, se = FALSE) + theme_classic() + labs(y = “Temperature (°C)”, x = “Time”) + scale_x_date(date_breaks = “1 year”, date_labels = “%Y”, expand = c(0, 0)) + theme(text = element_text(size = 12))</p>
-</section>
-<section id="保存图片到-plots-文件夹" class="level1" data-number="5">
-<h1 data-number="5"><span class="header-section-number">5</span> 保存图片到 plots 文件夹</h1>
-<p>ggsave(“../plots/Fig_4A_Temperature_series.pdf”, width = 10, height = 3)</p>
+<section id="图-4微生物互作网络的环境依赖性" class="level2" data-number="1.6">
+<h2 data-number="1.6" class="anchored" data-anchor-id="图-4微生物互作网络的环境依赖性"><span class="header-section-number">1.6</span> 6. 图 4：微生物互作网络的环境依赖性</h2>
+<p>图 4 的核心在于探究水温如何改变微生物之间的网络关系。通过 S-map 模型计算的动态相互作用系数，我们分析了核心物种的互作强度与促进比例随温度的变化，以及整体群落互作分布的温度依赖性。</p>
+<div data-fig-cap="图4：微生物互作网络随温度的动态变化综合面板">
+<p><embed src="../plots/Fig_4_temperature_dependency.pdf" class="img-fluid" style="width:100.0%"></p>
+</div>
 
 
 </section>
@@ -726,8 +752,8 @@ Figure&nbsp;1.1: 图1：微生物群落组成与总丰度的时间序列变化
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./index.html" class="pagination-link" aria-label="Preface">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Preface</span>
+      <a href="./index.html" class="pagination-link" aria-label="合成菌群文献复现项目">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">合成菌群文献复现项目</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

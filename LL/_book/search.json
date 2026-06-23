@@ -1,5 +1,35 @@
 [
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "合成菌群文献复现项目",
+    "section": "",
+    "text": "合成菌群文献复现项目\n复现论文： Characterizing the dynamics of marine microbial interactions at Scripps Pier\n团队成员： 刘浩东、栾叶辉\n课程： D2RS 2026 Spring",
+    "crumbs": [
+      "合成菌群文献复现项目"
+    ]
+  },
+  {
+    "objectID": "index.html#项目简介",
+    "href": "index.html#项目简介",
+    "title": "合成菌群文献复现项目",
+    "section": "项目简介",
+    "text": "项目简介\n本项目复现了原论文中关于海洋微生物群落演替与互作网络动态特征的三大核心分析：\n\n图 1A — 微生物群落结构随时间演替的长期时间序列变化\n图 2A-C — 微生物互作网络整体特征与动态变化趋势\n图 4 — 核心微生物互作网络随外部水温演变的环境依赖性",
+    "crumbs": [
+      "合成菌群文献复现项目"
+    ]
+  },
+  {
+    "objectID": "index.html#复现结果",
+    "href": "index.html#复现结果",
+    "title": "合成菌群文献复现项目",
+    "section": "复现结果",
+    "text": "复现结果\n\n图 1A：群落时间序列堆叠图展示了不同分类群（硅藻、甲藻等）的相对丰度随时间的演替规律，总丰度折线反映了群落整体的季节性波动。\n图 4：温度依赖性综合面板揭示了水温如何调控核心微生物之间的互作强度与促进/竞争比例。",
+    "crumbs": [
+      "合成菌群文献复现项目"
+    ]
+  },
+  {
     "objectID": "01-community-timeseries.html",
     "href": "01-community-timeseries.html",
     "title": "1  核心结果：微生物群落的时间序列变化",
@@ -44,7 +74,17 @@
     "href": "01-community-timeseries.html#环境驱动力分析温度的时间序列",
     "title": "1  核心结果：微生物群落的时间序列变化",
     "section": "1.5 5. 环境驱动力分析：温度的时间序列",
-    "text": "1.5 5. 环境驱动力分析：温度的时间序列\n在跳过极其消耗算力的微生物内部互作计算后，我们直接探索外部环境因子（如温度）对群落演替的潜在影响。原论文的图 4 探讨了这种温度依赖性。由于我们本地的数据集已经包含了水温记录，我们可以直接提取并将其可视化。 #| label: fig-temperature-dynamics #| fig-cap: “图2：采样期间水温的时间序列与季节性波动” #| fig-width: 10 #| fig-height: 3 #| warning: false #| message: false",
+    "text": "1.5 5. 环境驱动力分析：温度的时间序列\n在跳过极其消耗算力的微生物内部互作计算后，我们直接探索外部环境因子（如温度）对群落演替的潜在影响。原论文的图 4 探讨了这种温度依赖性。由于我们本地的数据集已经包含了水温记录，我们可以直接提取并将其可视化。\n\n# 重新读取原始宽表数据并专门提取温度列\nraw_data &lt;- read.csv(\"../data/data_sequences_0.1_rel_ab_0.5_occ_binned_4_days_with_temperature.csv\")\n\n# 整理环境数据（剔除多余的物种丰度列，保留时间和温度）\nenv_data &lt;- raw_data %&gt;%\n  select(date, temperature) %&gt;%\n  # 确保日期列被 R 语言正确识别为时间格式\n  mutate(date = as.Date(date))\n\n# 绘制温度变化折线图\nggplot(env_data, aes(x = date, y = temperature)) +\n  # 绘制温度主线（橙红色）\n  geom_line(color = \"#d95f02\", linewidth = 0.8) +\n  # 添加一条平滑的长期趋势线（黑色虚线）\n  geom_smooth(method = \"loess\", color = \"black\", linetype = \"dashed\", se = FALSE) +\n  theme_classic() +\n  labs(y = \"Temperature (°C)\", x = \"Time\") +\n  scale_x_date(date_breaks = \"1 year\", date_labels = \"%Y\", expand = c(0, 0)) +\n  theme(text = element_text(size = 12))\n\n# 保存图片到 plots 文件夹\nggsave(\"../plots/Fig_4A_Temperature_series.pdf\", width = 10, height = 3)\n\n\n\n\n\n\n\nFigure 1.2: 图2：采样期间水温的时间序列与季节性波动",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>核心结果：微生物群落的时间序列变化</span>"
+    ]
+  },
+  {
+    "objectID": "01-community-timeseries.html#图-4微生物互作网络的环境依赖性",
+    "href": "01-community-timeseries.html#图-4微生物互作网络的环境依赖性",
+    "title": "1  核心结果：微生物群落的时间序列变化",
+    "section": "1.6 6. 图 4：微生物互作网络的环境依赖性",
+    "text": "1.6 6. 图 4：微生物互作网络的环境依赖性\n图 4 的核心在于探究水温如何改变微生物之间的网络关系。通过 S-map 模型计算的动态相互作用系数，我们分析了核心物种的互作强度与促进比例随温度的变化，以及整体群落互作分布的温度依赖性。",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>核心结果：微生物群落的时间序列变化</span>"
     ]

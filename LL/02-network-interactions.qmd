@@ -1,7 +1,6 @@
 ---
 title: "图 2：微生物互作网络整体特征与动态变化"
 author: "lyh-2025"
-format: html
 editor: visual
 ---
 

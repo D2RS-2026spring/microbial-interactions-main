@@ -1,5 +1,22 @@
-# Preface {.unnumbered}
+# 合成菌群文献复现项目 {.unnumbered}
 
-This is a Quarto book.
+**复现论文：** Characterizing the dynamics of marine microbial interactions at Scripps Pier
 
-To learn more about Quarto books visit <https://quarto.org/docs/books>.
+**团队成员：** 刘浩东、栾叶辉
+
+**课程：** D2RS 2026 Spring
+
+---
+
+## 项目简介
+
+本项目复现了原论文中关于海洋微生物群落演替与互作网络动态特征的三大核心分析：
+
+1. **图 1A** — 微生物群落结构随时间演替的长期时间序列变化
+2. **图 2A-C** — 微生物互作网络整体特征与动态变化趋势
+3. **图 4** — 核心微生物互作网络随外部水温演变的环境依赖性
+
+## 复现结果
+
+- **图 1A**：群落时间序列堆叠图展示了不同分类群（硅藻、甲藻等）的相对丰度随时间的演替规律，总丰度折线反映了群落整体的季节性波动。
+- **图 4**：温度依赖性综合面板揭示了水温如何调控核心微生物之间的互作强度与促进/竞争比例。
