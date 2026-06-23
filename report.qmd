@@ -164,10 +164,3 @@ ggplot(env_data, aes(x = date, y = temperature)) +
 ::: {fig-cap="图4：微生物互作网络随温度的动态变化综合面板"}
 ![](plots/Fig_4_temperature_dependency.pdf){width=100%}
 :::
-
----
-
-# 参考文献
-
-::: {#refs}
-:::
