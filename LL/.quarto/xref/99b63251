@@ -1,1 +1,0 @@
-{"entries":[{"caption":"图2：采样期间水温的时间序列与季节性波动","key":"fig-temperature-dynamics","order":{"number":2,"section":[1,5,0,0,0,0,0]}},{"caption":"图1：微生物群落组成与总丰度的时间序列变化","key":"fig-community-composition","order":{"number":1,"section":[1,4,0,0,0,0,0]}}],"headings":["研究背景与数据准备","数据清洗与分类学聚合","图表属性配置与总丰度计算","核心结果可视化与解读","环境驱动力分析温度的时间序列","图-4微生物互作网络的环境依赖性"],"options":{"chapters":true}}
